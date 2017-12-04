@@ -12,10 +12,11 @@
       hue,
       count,
       r,g,b,a, tick, ballsCounter,
-      constant = 30, rgba, radius, loopCounter = 0,
+      constant = 30, rgba, radius, loopCounter,
       speed = 1, offset,
       color1,color2,color3,color4,color5,color6,
-      settings, styles = [], centers = 2, centersCoord = [];
+      settings, styles = [], centers = 2, centersCoord = [],
+      maxSpeed = 3;
   
       var FizzyText = function() {
         this.speed = 10;
@@ -92,7 +93,7 @@
     }
 
     function create() {
- 
+      loopCounter = 0;
       ballsCounter = Math.floor( ( cw + ch + constant) * 0.03 );
       if (settings.particels) {
         ballsCounter = settings.particels;
@@ -116,7 +117,7 @@
         clr = 'color' + j;
         styles.push(settings[clr]);
       }
-      centersCoord = createOrigins(centers);
+      centersCoord = createOrigins(centers, cw, ch);
       for(var j=0; j < centers; j++){
         offset = trueRand(-10,10);        
         for( var i = 0; i < ballsCounter/centers; i++ ) {
@@ -135,6 +136,8 @@
             vel: parseInt(rand( 0.2, speed )),
             tick: tick,
             fillStyle: fillStyle,
+            opacity: 0,
+            speed: Math.max(Math.random() * maxSpeed, 1),
             grow: 1
           });
         }
@@ -147,11 +150,10 @@
     function init() {
       resize();
       create();
-      setInterval(loop, 33);
+      setInterval(loop, 30);
     }
   
     function loop() {
-  
       ctx2.clearRect( 0, 0, cw, ch );
       ctx2.globalCompositeOperation = 'source-over';
       ctx2.shadowBlur = 0;
@@ -164,37 +166,34 @@
       
       while( i-- ) {
         var part = parts[ i ];
-       
         part.x += Math.cos( part.angle ) * part.vel ;
         part.y += Math.sin( part.angle ) * part.vel;
       
         ctx2.beginPath();
         ctx2.arc( part.x, part.y, part.radius, 0, twopi );
-        if (i%10 == 0) {
-            fillStyle = 'rgba(' + part.fillStyle.join(',') + ',' + trueRand(-.001, .8) + ')';
-        }
-        else {
-            fillStyle = 'rgba(' + part.fillStyle.join(',') + ',' + .8 + ')';
-        }
+
+        fillStyle = 'rgba(' + part.fillStyle.join(',') + ',' + part.opacity + ')';
+      
     
         ctx2.fillStyle = fillStyle;
   
   
         ctx2.fill();
-  
+        loopCounter++;
         part = update(part);
       
       }
     }
   
     function update(part){
-      
+      part.opacity = part.opacity + part.speed / 100;
       if( part.x > cw ) { 
         // part.x = cw/2; 
         part.x = centersCoord[part.centerNum].x
         // part.y = ch/2;
         part.y = centersCoord[part.centerNum].y
         part.vel = part.vel/2;
+        part.opacity = 0;
       }
       if( part.x + part.radius < 0 )  { 
         // part.x = cw/2 
@@ -202,6 +201,7 @@
         // part.y = ch/2
         part.y = centersCoord[part.centerNum].y
         part.vel = part.vel/2;
+        part.opacity = 0
       }
       if( part.y > ch ) { 
         // part.y = ch/2 
@@ -209,6 +209,7 @@
         // part.x = cw/2
         part.x = centersCoord[part.centerNum].x
         part.vel = part.vel/2;
+        part.opacity = 0
       }
       if( part.y + part.radius < 0 )  { 
         // part.y = ch/2 
@@ -216,6 +217,7 @@
         // part.x = cw/2
         part.x = centersCoord[part.centerNum].x
         part.vel = part.vel/2;
+        part.opacity = 0
       }
       
       part.vel +=.01
@@ -229,51 +231,30 @@
       part.tick++;
     }
 
-    function createOrigins(origins) {
+    function generateRandomCoordinates(width,height){
+      var pos = {},x,y;
+      var randsize = ((Math.random()*100) + 250).toFixed();
+      x = (Math.random() * (width - randsize)).toFixed();
+      y = (Math.random() * (height - randsize) + 50).toFixed() ;
+      pos.x = x;
+      pos.y = y;
+    
+      return pos;
+    }
+
+    function createOrigins(origins, cw, ch) {
       originsCenters = [];
-      var row = 6;
-      var stepY = parseInt(ch/2) - 100;
-      var stepX = parseInt(cw/(origins+1)) ;
-      var offset = origins * 10;
+      var pos;
       
       for (var i = 0; i < origins; i++) {
-        if (i == 0){
-          originsCenters.push({
-            x: stepX,
-            y: stepY,
-          });
-        }
-        
-        if (i != 0 && i < row){
-          x = originsCenters[i-1].x + stepX + offset;
-          y = originsCenters[i-1].y;
-          originsCenters.push({
-            x: x,
-            y: y,
-          });       
-        }
-
-        if(i !== 0 && i == row) {
-          x = originsCenters[i-1].x + offset; 
-          y = originsCenters[i-1].y + stepY;
-          originsCenters.push({
-            x: x,
-            y: y,
-          });       
-          
-        }
-
-        if(i !== 0 && i > row) {
-          x = originsCenters[i-1].x - stepX - offset;
-          y = originsCenters[i-1].y;
-          originsCenters.push({
-            x: x,
-            y: y,
-          });       
-          
-        }
+        pos = generateRandomCoordinates(cw, ch);
+        originsCenters.push({
+          x: parseInt(pos.x),
+          y: parseInt(pos.y),
+        });
+      
       }
-      return originsCenters
+      return originsCenters;
     }
 
     function resize() {
