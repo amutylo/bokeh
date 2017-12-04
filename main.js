@@ -138,7 +138,8 @@
             fillStyle: fillStyle,
             opacity: 0,
             speed: Math.max(Math.random() * maxSpeed, 1),
-            grow: 1
+            grow: 1,
+            slope: centersCoord[j].y / centersCoord[j].x
           });
         }
       }
@@ -166,9 +167,7 @@
       
       while( i-- ) {
         var part = parts[ i ];
-        part.x += Math.cos( part.angle ) * part.vel ;
-        part.y += Math.sin( part.angle ) * part.vel;
-      
+        
         ctx2.beginPath();
         ctx2.arc( part.x, part.y, part.radius, 0, twopi );
 
@@ -186,6 +185,10 @@
     }
   
     function update(part){
+      part.x += Math.cos( part.angle ) * part.vel ;
+      part.y += Math.sin( part.angle ) * part.vel;
+    
+
       part.opacity = part.opacity + part.speed / 100;
       if( part.x > cw ) { 
         // part.x = cw/2; 
@@ -220,7 +223,7 @@
         part.opacity = 0
       }
       
-      part.vel +=.01
+      part.vel +=.001
       if (part.vel > speed) {
         part.vel = part.vel/2;
       }
