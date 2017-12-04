@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+
+  "name": "Extension with bokeh effect",
+  "description": "This extension opens new tab with bokeh effect",
+  "version": "1.0",
+  "chrome_url_overrides" : {
+    "newtab": "main.html"
+  },
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "main.html"
+  },
+  "permissions": [
+    "activeTab",
+    "storage"
+  ]
+}
