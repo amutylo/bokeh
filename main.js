@@ -13,7 +13,7 @@
       count,
       r,g,b,a, tick, ballsCounter,
       constant = 30, rgba, radius, loopCounter,
-      speed = 1, offset,
+      speed = 3, offset,
       color1,color2,color3,color4,color5,color6,
       settings, styles = [], centers = 2, centersCoord = [],
       maxSpeed = 3;
@@ -137,7 +137,6 @@
             tick: tick,
             fillStyle: fillStyle,
             opacity: 0,
-            speed: Math.max(Math.random() * maxSpeed, 1),
             grow: 1,
             slope: centersCoord[j].y / centersCoord[j].x
           });
@@ -185,11 +184,12 @@
     }
   
     function update(part){
-      part.x += Math.cos( part.angle ) * part.vel ;
+      part.x += Math.cos( part.angle ) * part.vel;
       part.y += Math.sin( part.angle ) * part.vel;
     
 
-      part.opacity = part.opacity + part.speed / 100;
+      part.opacity = part.opacity + part.vel / 100;
+      
       if( part.x > cw ) { 
         // part.x = cw/2; 
         part.x = centersCoord[part.centerNum].x
@@ -197,6 +197,7 @@
         part.y = centersCoord[part.centerNum].y
         part.vel = part.vel/2;
         part.opacity = 0;
+        
       }
       if( part.x + part.radius < 0 )  { 
         // part.x = cw/2 
@@ -205,7 +206,7 @@
         part.y = centersCoord[part.centerNum].y
         part.vel = part.vel/2;
         part.opacity = 0
-      }
+              }
       if( part.y > ch ) { 
         // part.y = ch/2 
         part.y = centersCoord[part.centerNum].y
@@ -228,7 +229,6 @@
         part.vel = part.vel/2;
       }
           
-  
        part.angle += trueRand( -0.01, 0.01 );
 
       part.tick++;
